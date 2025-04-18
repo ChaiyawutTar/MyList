@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"time"
-	"github.com/ChaiyawutTar/MyList/backend/internal/core/domain"
+	"github.com/ChaiyawutTar/MyList/internal/core/domain"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -64,7 +64,6 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*domain
 
 	return &user, nil
 }
-
 
 func (r *userRepository) FindByID(ctx context.Context, id int) (*domain.User, error) {
 	query := `SELECT id, username, email, password_hash, created_at 

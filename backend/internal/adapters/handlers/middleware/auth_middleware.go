@@ -5,7 +5,7 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/ChaiyawutTar/MyList/backend/pkg/auth"
+	"github.com/ChaiyawutTar/MyList/pkg/auth"
 )
 
 type contextKey string

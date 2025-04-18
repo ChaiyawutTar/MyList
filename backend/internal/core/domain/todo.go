@@ -1,4 +1,3 @@
-// internal/core/domain/todo.go
 package domain
 
 import "time"

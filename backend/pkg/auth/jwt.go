@@ -20,15 +20,18 @@ func NewJWTAuth(secretKey string, expiry time.Duration) *JWTAuth {
 	}
 }
 
-func (j *JWTAuth) GenerateToken(userID int) (string, error) {
-	claims := jwt.MapClaims {
-		"id" : strconv.Itoa(userID),
-		"exp": time.Now().Add(j.expiry).Unix(),
+func (a *JWTAuth) GenerateToken(userID int) (string, error) {
+	// Create claims
+	claims := jwt.MapClaims{
+		"user_id": strconv.Itoa(userID),
+		"exp":     time.Now().Add(a.expiry).Unix(),
 	}
 
+	// Create token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(j.secretKey)
+	// Sign token
+	return token.SignedString(a.secretKey)
 }
 
 func (a *JWTAuth) ValidateToken(tokenString string) (jwt.MapClaims, error) {

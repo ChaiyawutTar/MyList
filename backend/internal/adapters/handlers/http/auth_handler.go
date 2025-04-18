@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/ChaiyawutTar/MyList/backend/internal/core/domain"
-	"github.com/ChaiyawutTar/MyList/backend/internal/core/ports"
+	"github.com/ChaiyawutTar/MyList/internal/core/domain"
+	"github.com/ChaiyawutTar/MyList/internal/core/ports"
 )
 
 type AuthHandler struct {
@@ -44,7 +44,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.userService.Login(r.Context(), req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
 

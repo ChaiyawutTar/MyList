@@ -3,11 +3,11 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
+	// "fmt"
 	"time"
-	"github.com/ChaiyawutTar/MyList/backend/internal/core/domain"
-	"github.com/ChaiyawutTar/MyList/backend/internal/core/ports"
-	"github.com/ChaiyawutTar/MyList/backend/pkg/auth"
+	"github.com/ChaiyawutTar/MyList/internal/core/domain"
+	"github.com/ChaiyawutTar/MyList/internal/core/ports"
+	"github.com/ChaiyawutTar/MyList/pkg/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,25 +23,27 @@ func NewUserService(userRepo ports.UserRepository, jwtAuth *auth.JWTAuth) ports.
 	}
 }
 
-func (s *userService) CreateUser (ctx context.Context, req domain.SignupRequest) (*domain.AuthResponse, error) {
-
+func (s *userService) CreateUser(ctx context.Context, req domain.SignupRequest) (*domain.AuthResponse, error) {
+	// Validate input
 	if req.Username == "" || req.Email == "" || req.Password == "" {
 		return nil, errors.New("username, email and password are required")
 	}
 
+	// Create user
 	user := &domain.User{
-		Username: req.Username,
-		Email:    req.Email,
+		Username:  req.Username,
+		Email:     req.Email,
 		CreatedAt: time.Now(),
 	}
 
 	if err := s.userRepo.Create(ctx, user, req.Password); err != nil {
-		return nil, fmt.Errorf("failed to create user: %w", err)
+		return nil, err
 	}
 
+	// Generate token
 	token, err := s.jwtAuth.GenerateToken(user.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate token: %w", err)
+		return nil, err
 	}
 
 	return &domain.AuthResponse{
@@ -51,22 +53,26 @@ func (s *userService) CreateUser (ctx context.Context, req domain.SignupRequest)
 }
 
 func (s *userService) Login(ctx context.Context, req domain.LoginRequest) (*domain.AuthResponse, error) {
+	// Validate input
 	if req.Email == "" || req.Password == "" {
 		return nil, errors.New("email and password are required")
 	}
 
+	// Find user
 	user, err := s.userRepo.FindByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find user: %w", err)
+		return nil, errors.New("invalid credentials")
 	}
 
+	// Verify password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-		return nil, errors.New("invalid email or password")
+		return nil, errors.New("invalid credentials")
 	}
 
+	// Generate token
 	token, err := s.jwtAuth.GenerateToken(user.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate token: %w", err)
+		return nil, err
 	}
 
 	return &domain.AuthResponse{
@@ -76,11 +82,5 @@ func (s *userService) Login(ctx context.Context, req domain.LoginRequest) (*doma
 }
 
 func (s *userService) GetUserByID(ctx context.Context, id int) (*domain.User, error) {
-	user, err := s.userRepo.FindByID(ctx, id)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find user: %w", err)
-	}
-
-	return user, nil
+	return s.userRepo.FindByID(ctx, id)
 }
-

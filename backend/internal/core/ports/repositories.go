@@ -3,9 +3,9 @@ package ports
 import (
 
 	"context"
-	// "mime/multipart"
+	"mime/multipart"
 
-	"github.com/ChaiyawutTar/MyList/backend/internal/core/domain"
+	"github.com/ChaiyawutTar/MyList/internal/core/domain"
 )
 
 type UserRepository interface {
@@ -14,3 +14,15 @@ type UserRepository interface {
 	FindByID(ctx context.Context, id int) (*domain.User, error)
 }
 
+type TodoRepository interface {
+	FindAll(ctx context.Context, userID int) ([]domain.Todo, error)
+	FindByID(ctx context.Context, id int) (*domain.Todo, error)
+	Create(ctx context.Context, todo *domain.Todo) error
+	Update(ctx context.Context, todo *domain.Todo) error
+	Delete(ctx context.Context, id int) error
+}
+
+type ImageRepository interface {
+	Save(ctx context.Context, file multipart.File, filename string) (string, error)
+	Delete(ctx context.Context, path string) error
+}
