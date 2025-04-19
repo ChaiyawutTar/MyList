@@ -25,7 +25,12 @@ func NewTodoService(todoRepo ports.TodoRepository, imageRepo ports.ImageReposito
 }
 
 func (s *todoService) GetAllTodos(ctx context.Context, userID int) ([]domain.Todo, error) {
-	return s.todoRepo.FindAll(ctx, userID)
+    todos, err := s.todoRepo.FindAll(ctx, userID)
+    if err != nil {
+        fmt.Printf("Error in todoService.GetAllTodos: %v\n", err)
+        return nil, err
+    }
+    return todos, nil
 }
 
 func (s *todoService) GetTodoByID(ctx context.Context, id int, userID int) (*domain.Todo, error) {
@@ -74,13 +79,13 @@ func (s *todoService) CreateTodo(ctx context.Context, req domain.CreateTodoReque
 		// Generate unique filename
 		filename := fmt.Sprintf("%d_%s", time.Now().Unix(), filepath.Base(imageFile.Filename))
 		
-		// Save image
-		imagePath, err := s.imageRepo.Save(ctx, file, filename)
+		// Save image to database
+		imageID, err := s.imageRepo.Save(ctx, file, filename)
 		if err != nil {
 			return nil, err
 		}
 
-		todo.ImagePath = imagePath
+		todo.ImageID = imageID // Changed from ImagePath
 	}
 
 	// Save todo
@@ -118,8 +123,8 @@ func (s *todoService) UpdateTodo(ctx context.Context, id int, req domain.UpdateT
 		defer file.Close()
 
 		// Delete old image if exists
-		if todo.ImagePath != "" {
-			if err := s.imageRepo.Delete(ctx, todo.ImagePath); err != nil {
+		if todo.ImageID != "" {
+			if err := s.imageRepo.Delete(ctx, todo.ImageID); err != nil {
 				// Log error but continue
 				fmt.Printf("Error deleting old image: %v\n", err)
 			}
@@ -129,12 +134,12 @@ func (s *todoService) UpdateTodo(ctx context.Context, id int, req domain.UpdateT
 		filename := fmt.Sprintf("%d_%s", time.Now().Unix(), filepath.Base(imageFile.Filename))
 		
 		// Save new image
-		imagePath, err := s.imageRepo.Save(ctx, file, filename)
+		imageID, err := s.imageRepo.Save(ctx, file, filename)
 		if err != nil {
 			return nil, err
 		}
 
-		todo.ImagePath = imagePath
+		todo.ImageID = imageID // Changed from ImagePath
 	}
 
 	// Save todo
@@ -158,8 +163,8 @@ func (s *todoService) DeleteTodo(ctx context.Context, id int, userID int) error 
 	}
 
 	// Delete image if exists
-	if todo.ImagePath != "" {
-		if err := s.imageRepo.Delete(ctx, todo.ImagePath); err != nil {
+	if todo.ImageID != "" {
+		if err := s.imageRepo.Delete(ctx, todo.ImageID); err != nil {
 			// Log error but continue
 			fmt.Printf("Error deleting image: %v\n", err)
 		}

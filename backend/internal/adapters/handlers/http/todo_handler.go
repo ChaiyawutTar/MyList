@@ -9,6 +9,7 @@ import (
 	"github.com/ChaiyawutTar/MyList/internal/core/domain"
 	"github.com/ChaiyawutTar/MyList/internal/core/ports"
 	"github.com/ChaiyawutTar/MyList/internal/adapters/handlers/middleware"
+	"fmt"
 )
 
 type TodoHandler struct {
@@ -22,19 +23,24 @@ func NewTodoHandler(todoService ports.TodoService) *TodoHandler {
 }
 
 func (h *TodoHandler) GetAllTodos(w http.ResponseWriter, r *http.Request) {
-	// Get user ID from context
-	userID := middleware.GetUserIDFromContext(r.Context())
+    // Get user ID from context
+    userID := middleware.GetUserIDFromContext(r.Context())
 
-	todos, err := h.todoService.GetAllTodos(r.Context(), userID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+    todos, err := h.todoService.GetAllTodos(r.Context(), userID)
+    if err != nil {
+        // Log the detailed error
+        fmt.Printf("Error fetching todos: %v\n", err)
+        http.Error(w, fmt.Sprintf("Failed to fetch todos: %v", err), http.StatusInternalServerError)
+        return
+    }
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(todos)
+    w.Header().Set("Content-Type", "application/json")
+    if err := json.NewEncoder(w).Encode(todos); err != nil {
+        fmt.Printf("Error encoding todos: %v\n", err)
+        http.Error(w, "Error encoding response", http.StatusInternalServerError)
+        return
+    }
 }
-
 func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 	// Get user ID from context
 	userID := middleware.GetUserIDFromContext(r.Context())

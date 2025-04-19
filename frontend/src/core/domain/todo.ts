@@ -6,6 +6,7 @@ export interface Todo {
     description: string;
     status: 'pending' | 'in_progress' | 'done';
     image_path?: string;
+    image_id?: number;
     created_at: string;
     updated_at: string;
   }

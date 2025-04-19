@@ -24,7 +24,11 @@ type TodoRepository interface {
 	Delete(ctx context.Context, id int) error
 }
 
+// internal/core/ports/repositories.go
+// Add this to your existing ports package
+
 type ImageRepository interface {
 	Save(ctx context.Context, file multipart.File, filename string) (string, error)
-	Delete(ctx context.Context, path string) error
+	Delete(ctx context.Context, imageID string) error
+	Get(ctx context.Context, imageID string) ([]byte, string, error)
 }

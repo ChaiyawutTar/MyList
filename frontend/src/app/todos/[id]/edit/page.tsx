@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useTodos } from '@/hooks/use-todos';
 import TodoForm from '@/components/todos/TodoForm';
 import { Todo, UpdateTodoRequest } from '@/core/domain/todo';
+import { Loading } from '@/components/ui/loading'; // Import the Loading component
 
 export default function EditTodoPage() {
   const params = useParams();
@@ -22,23 +23,23 @@ export default function EditTodoPage() {
       router.push('/login');
       return;
     }
-
+  
+    const fetchTodo = async () => {
+      try {
+        const fetchedTodo = await getTodoById(todoId);
+        setTodo(fetchedTodo);
+      } catch (err) {
+        setError('Failed to fetch todo');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     if (user && !isNaN(todoId)) {
       fetchTodo();
     }
-  }, [user, authLoading, todoId, router]);
-
-  const fetchTodo = async () => {
-    try {
-      const fetchedTodo = await getTodoById(todoId);
-      setTodo(fetchedTodo);
-    } catch (err) {
-      setError('Failed to fetch todo');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [user, authLoading, todoId, router, getTodoById]);
 
   const handleSubmit = async (data: UpdateTodoRequest) => {
     await updateTodo(todoId, data);
@@ -46,11 +47,7 @@ export default function EditTodoPage() {
   };
 
   if (authLoading || loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (error) {
@@ -73,7 +70,7 @@ export default function EditTodoPage() {
           title: todo.title,
           description: todo.description,
           status: todo.status,
-          image_path: todo.image_path,
+          image_id: todo.image_id, // Changed from image_path to image_id
         }}
         onSubmit={handleSubmit}
         isEditing

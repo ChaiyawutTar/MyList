@@ -1,7 +1,6 @@
-// src/components/todos/TodoForm.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,16 +8,25 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-// Remove the Image import if using regular img tag
+import type { CreateTodoRequest, UpdateTodoRequest, Todo } from '@/core/domain/todo';
+import Image from 'next/image';
 
-export default function TodoForm({ initialData, onSubmit, isEditing = false }) {
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export interface TodoFormProps {
+  initialData?: Partial<Todo>;
+  onSubmit: (data: CreateTodoRequest | UpdateTodoRequest) => Promise<void>;
+  isEditing?: boolean;
+}
+
+export default function TodoForm({ initialData, onSubmit, isEditing = false }: TodoFormProps) {
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
-  const [status, setStatus] = useState(initialData?.status || 'pending');
-  const [image, setImage] = useState(null);
+  const [status, setStatus] = useState<'pending' | 'in_progress' | 'done'>(initialData?.status || 'pending');
+  const [image, setImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -29,9 +37,8 @@ export default function TodoForm({ initialData, onSubmit, isEditing = false }) {
         status,
         image: image || undefined,
       });
-      
+
       if (!isEditing) {
-        // Reset form if creating new todo
         setTitle('');
         setDescription('');
         setStatus('pending');
@@ -80,10 +87,7 @@ export default function TodoForm({ initialData, onSubmit, isEditing = false }) {
           
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
-            <Select 
-              value={status} 
-              onValueChange={setStatus}
-            >
+            <Select value={status} onValueChange={(val: 'pending' | 'in_progress' | 'done') => setStatus(val)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -103,14 +107,16 @@ export default function TodoForm({ initialData, onSubmit, isEditing = false }) {
               onChange={(e) => setImage(e.target.files?.[0] || null)}
               accept="image/*"
             />
-            {initialData?.image_path && (
+            {initialData?.image_id && (
               <div className="mt-2">
                 <p className="text-sm text-muted-foreground">Current image:</p>
-                {/* Using regular img tag instead of Next.js Image */}
-                <img
-                  src={`http://localhost:8080/${initialData.image_path}`}
+                <Image
+                  src={`${API_URL}/images/${initialData.image_id}`}
                   alt={`Image for ${initialData.title}`}
-                  className="mt-2 h-20 w-auto object-cover rounded"
+                  width={80} // adjust based on expected size
+                  height={80}
+                  className="mt-2 object-cover rounded"
+                  style={{ height: 'auto' }} // optional
                 />
               </div>
             )}

@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { Todo } from '@/core/domain/todo';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,8 @@ interface TodoItemProps {
   todo: Todo;
   onDelete: (id: number) => Promise<void>;
 }
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function TodoItem({ todo, onDelete }: TodoItemProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -65,15 +68,17 @@ export default function TodoItem({ todo, onDelete }: TodoItemProps) {
             {todo.description || "No description provided"}
           </p>
           
-          {todo.image_path && (
-            <div className="mt-4">
-              <img
-                src={`http://localhost:8080/${todo.image_path}`}
-                alt={todo.title}
-                className="h-40 w-full object-cover rounded-md"
-              />
-            </div>
-          )}
+          {todo.image_id && (
+          <div className="mt-4">
+            <Image
+              src={`${API_URL}/images/${todo.image_id}`}
+              alt={todo.title}
+              width={80} // adjust based on expected size
+              height={80}
+              className="h-40 w-full object-cover rounded-md"
+            />
+          </div>
+        )}
         </CardContent>
         <CardFooter className="flex justify-between pt-2">
           <Button variant="outline" size="sm" asChild>
@@ -102,7 +107,7 @@ export default function TodoItem({ todo, onDelete }: TodoItemProps) {
               Confirm Deletion
             </DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{todo.title}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{todo.title}&quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">

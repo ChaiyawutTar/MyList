@@ -8,11 +8,10 @@ type Todo struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
-	ImagePath   string    `json:"image_path,omitempty"`
+	ImageID     string    `json:"image_id,omitempty"` // Changed from ImagePath to ImageID
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
-
 type CreateTodoRequest struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
