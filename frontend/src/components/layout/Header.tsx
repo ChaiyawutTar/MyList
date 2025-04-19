@@ -14,7 +14,7 @@ export default function Header() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="text-xl font-bold text-indigo-600">
-                Todo App
+                My List
               </Link>
             </div>
           </div>

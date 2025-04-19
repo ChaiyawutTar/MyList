@@ -6,6 +6,9 @@ import TodoItem from './TodoItem';
 import { useTodos } from '../../hooks/use-todos';
 import Link from 'next/link';
 
+// In your useTodos hook, make sure todos is initialized as an empty array
+// Then in TodoList.tsx, add a null check:
+
 export default function TodoList() {
   const { todos, loading, error, fetchTodos, deleteTodo } = useTodos();
 
@@ -13,7 +16,7 @@ export default function TodoList() {
     fetchTodos();
   }, [fetchTodos]);
 
-  if (loading && todos.length === 0) {
+  if (loading && (!todos || todos.length === 0)) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-gray-500">Loading...</p>
@@ -41,7 +44,7 @@ export default function TodoList() {
         </Link>
       </div>
 
-      {todos.length === 0 ? (
+      {!todos || todos.length === 0 ? (
         <div className="bg-white shadow rounded-lg p-6 text-center">
           <p className="text-gray-500">No todos yet. Add your first todo!</p>
         </div>
