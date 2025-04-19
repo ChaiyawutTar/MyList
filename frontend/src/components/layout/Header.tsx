@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from "@/components/ui/button";
-import { LogOut, User } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   DropdownMenu, 
@@ -33,7 +33,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-primary">
+            <Link href="/todos" className="text-xl font-bold text-primary">
               My List
             </Link>
           </div>

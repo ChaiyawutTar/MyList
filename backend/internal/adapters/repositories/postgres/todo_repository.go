@@ -159,50 +159,62 @@ func (r *todoRepository) FindByID(ctx context.Context, id int) (*domain.Todo, er
 }
 
 func (r *todoRepository) Create(ctx context.Context, todo *domain.Todo) error {
-	query := `INSERT INTO todos (user_id, title, description, status, image_id, created_at, updated_at) 
+    query := `INSERT INTO todos (user_id, title, description, status, image_id, created_at, updated_at) 
               VALUES ($1, $2, $3, $4, $5, $6, $7) 
               RETURNING id`
 
-	now := time.Now()
-	todo.CreatedAt = now
-	todo.UpdatedAt = now
+    now := time.Now()
+    todo.CreatedAt = now
+    todo.UpdatedAt = now
 
-	err := r.db.QueryRowContext(
-		ctx,
-		query,
-		todo.UserID,
-		todo.Title,
-		todo.Description,
-		todo.Status,
-		todo.ImageID,
-		todo.CreatedAt,
-		todo.UpdatedAt,
-	).Scan(&todo.ID)
+    err := r.db.QueryRowContext(
+        ctx,
+        query,
+        todo.UserID,
+        todo.Title,
+        todo.Description,
+        todo.Status,
+        todo.ImageID,
+        todo.CreatedAt,
+        todo.UpdatedAt,
+    ).Scan(&todo.ID)
 
-	return err
+    return err
 }
 
 func (r *todoRepository) Update(ctx context.Context, todo *domain.Todo) error {
-	query := `UPDATE todos 
+    query := `UPDATE todos 
               SET title = $1, description = $2, status = $3, image_id = $4, updated_at = $5 
               WHERE id = $6`
 
-	todo.UpdatedAt = time.Now()
+    todo.UpdatedAt = time.Now()
 
-	_, err := r.db.ExecContext(
-		ctx,
-		query,
-		todo.Title,
-		todo.Description,
-		todo.Status,
-		todo.ImageID,
-		todo.UpdatedAt,
-		todo.ID,
-	)
-
-	return err
+    result, err := r.db.ExecContext(
+        ctx,
+        query,
+        todo.Title,
+        todo.Description,
+        todo.Status,
+        todo.ImageID,
+        todo.UpdatedAt,
+        todo.ID,
+    )
+    if err != nil {
+        return err
+    }
+    
+    // Check if any row was affected
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        return err
+    }
+    
+    if rowsAffected == 0 {
+        return errors.New("todo not found")
+    }
+    
+    return nil
 }
-
 
 func (r *todoRepository) Delete(ctx context.Context, id int) error {
 	query := `DELETE FROM todos WHERE id = $1`

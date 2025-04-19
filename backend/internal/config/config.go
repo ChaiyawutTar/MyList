@@ -11,7 +11,6 @@ type Config struct {
 	JWTSecret        string
 	JWTExpiry        time.Duration
 	ServerPort       string
-	UploadDir        string
 	AllowedOrigins   []string
 	AllowCredentials bool
 	GoogleClientID   string
@@ -29,9 +28,7 @@ func LoadConfig() *Config {
 
 	// Set default values if not provided
 	viper.SetDefault("DATABASE_URL", "")
-	viper.SetDefault("JWT_SECRET", "")
 	viper.SetDefault("PORT", "8080")
-	viper.SetDefault("UPLOAD_DIR", "./uploads")
 	viper.SetDefault("FRONTEND_URL", "http://localhost:3000")
 	viper.SetDefault("GOOGLE_CLIENT_ID", "")
     viper.SetDefault("GOOGLE_CLIENT_SECRET", "")
@@ -46,7 +43,6 @@ func LoadConfig() *Config {
 		JWTSecret:        viper.GetString("JWT_SECRET"),
 		JWTExpiry:        24 * time.Hour,
 		ServerPort:       viper.GetString("PORT"),
-		UploadDir:        viper.GetString("UPLOAD_DIR"),
 		AllowedOrigins:   []string{viper.GetString("FRONTEND_URL")},
 		AllowCredentials: true,
 		GoogleClientID:     viper.GetString("GOOGLE_CLIENT_ID"),

@@ -1,7 +1,7 @@
 // src/hooks/use-todos.ts
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Todo, CreateTodoRequest, UpdateTodoRequest } from '@/core/domain/todo';
 import { TodoUseCases } from '@/core/usecases/todo-usecases';
 import { todoRepository } from '@/infrastructure/repositories/todo-repository-impl';
@@ -10,7 +10,9 @@ export const useTodos = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const todoUseCases = new TodoUseCases(todoRepository);
+  
+  // Use useMemo to create todoUseCases once and avoid recreating it on every render
+  const todoUseCases = useMemo(() => new TodoUseCases(todoRepository), []);
 
   const fetchTodos = useCallback(async () => {
     setLoading(true);
@@ -24,7 +26,7 @@ export const useTodos = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [todoUseCases]); // Add todoUseCases to the dependency array
 
   const getTodoById = useCallback(async (id: number) => {
     setLoading(true);
@@ -53,7 +55,7 @@ export const useTodos = () => {
     } finally {
       setLoading(false);
     }
-  }, [todos]);
+  }, [todos]); // This one is fine as it doesn't use todoUseCases
 
   const createTodo = useCallback(async (todo: CreateTodoRequest) => {
     setLoading(true);
@@ -69,7 +71,7 @@ export const useTodos = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [todoUseCases]); // Add todoUseCases to the dependency array
 
   const updateTodo = useCallback(async (id: number, todo: UpdateTodoRequest) => {
     setLoading(true);
@@ -87,7 +89,7 @@ export const useTodos = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [todoUseCases]); // Add todoUseCases to the dependency array
 
   const deleteTodo = useCallback(async (id: number) => {
     setLoading(true);
@@ -102,7 +104,7 @@ export const useTodos = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [todoUseCases]); // Add todoUseCases to the dependency array
 
   return {
     todos,

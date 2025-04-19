@@ -6,6 +6,8 @@ import (
     "net/http"
     "github.com/go-chi/chi/v5"
     "github.com/ChaiyawutTar/MyList/internal/core/ports"
+
+	"strings"
 )
 
 type ImageHandler struct {
@@ -19,6 +21,7 @@ func NewImageHandler(imageRepository ports.ImageRepository) *ImageHandler {
 }
 
 
+// internal/adapters/handlers/http/image_handler.go
 func (h *ImageHandler) ServeImage(w http.ResponseWriter, r *http.Request) {
     // Get image ID from URL
     imageID := chi.URLParam(r, "id")
@@ -27,27 +30,52 @@ func (h *ImageHandler) ServeImage(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    // Log the request
     fmt.Printf("Serving image with ID: %s\n", imageID)
 
-    // Get image data from repository
+    // Generate ETag based on image ID
+    etag := fmt.Sprintf("\"img-%s\"", imageID)
+    
+    // Check if the client has the image cached
+    if match := r.Header.Get("If-None-Match"); match != "" {
+        if strings.Contains(match, etag) {
+            w.WriteHeader(http.StatusNotModified)
+            return
+        }
+    }
+
+    // Get image data from repository with error handling
     imageData, contentType, err := h.imageRepository.Get(r.Context(), imageID)
     if err != nil {
-        fmt.Printf("Error retrieving image %s: %v\n", imageID, err)
-        http.Error(w, fmt.Sprintf("Failed to retrieve image: %v", err), http.StatusInternalServerError)
+        if strings.Contains(err.Error(), "not found") {
+            fmt.Printf("Image not found: %s, error: %v\n", imageID, err)
+            http.Error(w, "Image not found", http.StatusNotFound)
+        } else {
+            fmt.Printf("Error retrieving image %s: %v\n", imageID, err)
+            http.Error(w, "Failed to retrieve image", http.StatusInternalServerError)
+        }
         return
     }
 
-    fmt.Printf("Successfully retrieved image %s with content type %s and size %d bytes\n", 
-        imageID, contentType, len(imageData))
+    // Check if we actually got data
+    if len(imageData) == 0 {
+        fmt.Printf("Image data is empty for ID: %s\n", imageID)
+        http.Error(w, "Image data is empty", http.StatusNotFound)
+        return
+    }
 
-    // Set content type
+    // Set strong caching headers
+    w.Header().Set("ETag", etag)
+    w.Header().Set("Cache-Control", "public, max-age=31536000") // Cache for 1 year
     w.Header().Set("Content-Type", contentType)
     w.Header().Set("Content-Length", fmt.Sprintf("%d", len(imageData)))
-    w.Header().Set("Cache-Control", "public, max-age=86400") // Cache for 24 hours
     
     // Write image data to response
-    _, err = w.Write(imageData)
+    bytesWritten, err := w.Write(imageData)
     if err != nil {
         fmt.Printf("Error writing image data to response: %v\n", err)
+        return
     }
+    
+    fmt.Printf("Successfully served image %s (%d bytes)\n", imageID, bytesWritten)
 }

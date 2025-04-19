@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import type { CreateTodoRequest, UpdateTodoRequest, Todo } from '@/core/domain/todo';
 import Image from 'next/image';
+import { useEffect } from 'react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -17,14 +18,34 @@ export interface TodoFormProps {
   initialData?: Partial<Todo>;
   onSubmit: (data: CreateTodoRequest | UpdateTodoRequest) => Promise<void>;
   isEditing?: boolean;
+  isSubmitting?: boolean;
 }
 
-export default function TodoForm({ initialData, onSubmit, isEditing = false }: TodoFormProps) {
+export default function TodoForm({ 
+  initialData, 
+  onSubmit, 
+  isEditing = false,
+  isSubmitting = false 
+}: TodoFormProps) {
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [status, setStatus] = useState<'pending' | 'in_progress' | 'done'>(initialData?.status || 'pending');
   const [image, setImage] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Generate preview when a new image is selected
+  useEffect(() => {
+    if (image) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(image);
+    } else {
+      setImagePreview(null);
+    }
+  }, [image]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -43,6 +64,7 @@ export default function TodoForm({ initialData, onSubmit, isEditing = false }: T
         setDescription('');
         setStatus('pending');
         setImage(null);
+        setImagePreview(null);
       }
     } catch (error) {
       console.error('Error submitting todo:', error);
@@ -50,6 +72,13 @@ export default function TodoForm({ initialData, onSubmit, isEditing = false }: T
       setIsLoading(false);
     }
   };
+
+  const clearImage = () => {
+    setImage(null);
+    setImagePreview(null);
+  };
+
+  const submitting = isLoading || isSubmitting;
 
   return (
     <Card>
@@ -106,25 +135,60 @@ export default function TodoForm({ initialData, onSubmit, isEditing = false }: T
               type="file"
               onChange={(e) => setImage(e.target.files?.[0] || null)}
               accept="image/*"
+              className="mb-2"
             />
-            {initialData?.image_id && (
-              <div className="mt-2">
-                <p className="text-sm text-muted-foreground">Current image:</p>
-                <Image
-                  src={`${API_URL}/images/${initialData.image_id}`}
-                  alt={`Image for ${initialData.title}`}
-                  width={80} // adjust based on expected size
-                  height={80}
-                  className="mt-2 object-cover rounded"
-                  style={{ height: 'auto' }} // optional
-                />
+            
+            {/* Show image preview when a new image is selected */}
+            {imagePreview && (
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-muted-foreground">New image preview:</p>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={clearImage}
+                    className="h-8 px-2"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Clear
+                  </Button>
+                </div>
+                <div className="relative rounded-md overflow-hidden border">
+                  <Image
+                    src={imagePreview}
+                    alt="Image preview"
+                    width={300}
+                    height={200}
+                    className="object-contain w-full"
+                    style={{ maxHeight: '200px' }}
+                  />
+                </div>
+              </div>
+            )}
+            
+            {/* Show current image if editing and no new image is selected */}
+            {!imagePreview && initialData?.image_id && (
+              <div className="mt-4">
+                <p className="text-sm text-muted-foreground mb-2">Current image:</p>
+                <div className="relative rounded-md overflow-hidden border">
+                  <Image
+                    src={`${API_URL}/images/${initialData.image_id}`}
+                    alt={`Image for ${initialData.title}`}
+                    width={300}
+                    height={200}
+                    className="object-contain w-full"
+                    style={{ maxHeight: '200px' }}
+                    loading="lazy"
+                  />
+                </div>
               </div>
             )}
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? (
+          <Button type="submit" disabled={submitting}>
+            {submitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {isEditing ? 'Saving...' : 'Adding...'}

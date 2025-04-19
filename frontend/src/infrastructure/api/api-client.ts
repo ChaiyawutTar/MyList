@@ -26,16 +26,15 @@ export class ApiClient {
     return response.data;
   }
 
-  async post<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<T> {
+  async post<T, D = Record<string, unknown>>(url: string, data: D, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.post<T>(url, data, config);
     return response.data;
   }
 
-  async put<T>(url: string, data: any, config?: AxiosRequestConfig): Promise<T> {
+  async put<T, D = Record<string, unknown>>(url: string, data: D, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.put<T>(url, data, config);
     return response.data;
   }
-
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.delete<T>(url, config);
     return response.data;

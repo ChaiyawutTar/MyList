@@ -5,6 +5,7 @@ export interface User {
   email: string;
   created_at: string;
   oauth_provider?: string;
+  picture?: string;
 }
 
 // Add OAuth login method

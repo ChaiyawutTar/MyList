@@ -99,7 +99,6 @@ func (h *AuthHandler) OAuthCallback(w http.ResponseWriter, r *http.Request) {
         return
     }
     
-    // Redirect to frontend with token - note the path is now /callback not /auth/callback
     redirectURL := fmt.Sprintf("%s/callback?token=%s", h.frontendURL, resp.Token)
     http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }

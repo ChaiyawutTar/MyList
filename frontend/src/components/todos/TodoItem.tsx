@@ -1,14 +1,14 @@
 // src/components/todos/TodoItem.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Todo } from '@/core/domain/todo';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Loader2, AlertTriangle } from "lucide-react";
+import { Edit, Trash2, Loader2, AlertTriangle, ImageIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +28,36 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export default function TodoItem({ todo, onDelete }: TodoItemProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [shouldLoadImage, setShouldLoadImage] = useState(false);
+  const todoRef = useRef<HTMLDivElement>(null);
+
+  // Set up intersection observer for lazy loading
+  useEffect(() => {
+    if (!todo.image_id) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoadImage(true);
+          observer.disconnect();
+        }
+      },
+      { 
+        rootMargin: '200px', // Start loading when within 200px of viewport
+        threshold: 0.1 
+      }
+    );
+
+    if (todoRef.current) {
+      observer.observe(todoRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [todo.image_id]);
 
   const handleDelete = async () => {
     setIsLoading(true);
@@ -54,7 +84,7 @@ export default function TodoItem({ todo, onDelete }: TodoItemProps) {
 
   return (
     <>
-      <Card>
+      <Card ref={todoRef}>
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
             <CardTitle className="text-lg">{todo.title}</CardTitle>
@@ -69,16 +99,42 @@ export default function TodoItem({ todo, onDelete }: TodoItemProps) {
           </p>
           
           {todo.image_id && (
-          <div className="mt-4">
-            <Image
-              src={`${API_URL}/images/${todo.image_id}`}
-              alt={todo.title}
-              width={80} // adjust based on expected size
-              height={80}
-              className="h-40 w-full object-cover rounded-md"
-            />
-          </div>
-        )}
+            <div className="mt-4 relative h-40 bg-gray-100 rounded-md overflow-hidden">
+              {!shouldLoadImage ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <ImageIcon className="h-8 w-8 text-gray-400" />
+                </div>
+              ) : !imageLoaded && !imageError ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                </div>
+              ) : null}
+              
+              {shouldLoadImage && (
+                <Image
+                  width={400}
+                  height={200}
+                  src={`${API_URL}/images/${todo.image_id}`}
+                  alt={todo.title}
+                  className={`h-40 w-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => {
+                    setImageError(true);
+                    console.error(`Failed to load image for todo ${todo.id}`);
+                  }}
+                  priority={false}
+                  loading="lazy"
+                />
+              )}
+              
+              {imageError && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <AlertTriangle className="h-6 w-6 text-red-500 mb-2" />
+                  <span className="text-sm text-red-500">Failed to load image</span>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex justify-between pt-2">
           <Button variant="outline" size="sm" asChild>

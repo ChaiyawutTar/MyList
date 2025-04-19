@@ -28,7 +28,8 @@ export default function LoginForm() {
 
     try {
       await login(email, password);
-    } catch (error) {
+    } catch (error : unknown) {
+      console.error('Login error:', error); // You can also send this to a monitoring service
       setError('Invalid credentials. Please try again.');
     } finally {
       setIsLoading(false);

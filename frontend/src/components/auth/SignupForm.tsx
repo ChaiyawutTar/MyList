@@ -28,7 +28,8 @@ export default function SignupForm() {
 
     try {
       await signup(username, email, password);
-    } catch (error) {
+    } catch (error : unknown) {
+      console.error('Signup error:', error); // You can also send this to a monitoring service
       setError('Failed to sign up. Please try again.');
     } finally {
       setIsLoading(false);
