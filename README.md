@@ -118,7 +118,7 @@ npm run dev
 
 ## 🧩 Code Explanation
 
-### Clean Architecture
+### Clean Architecture (Hexagonal Architecture)
 
 The project follows clean architecture principles to ensure:
 
@@ -150,6 +150,95 @@ Todos are managed through a RESTful API with endpoints for:
 - Retrieving todos (individual or all)
 - Updating existing todos
 - Deleting todos
+
+## 🔷 Hexagonal Architecture (Ports and Adapters)
+
+The MyList application implements hexagonal architecture (also known as ports and adapters), a pattern that puts the domain logic at the center of the application and defines how it interacts with the outside world through ports and adapters.
+
+### Core Principles
+
+1. **Domain-Centric Design**: The business logic is at the center, isolated from external concerns
+2. **Ports**: Interfaces that define how the domain interacts with the outside world
+3. **Adapters**: Implementations of these interfaces that connect to specific technologies
+
+### Implementation in MyList
+
+#### Domain Layer (`internal/core/domain`)
+
+The domain layer contains the business entities and logic, completely isolated from external concerns:
+
+- `todo.go`: Defines the Todo entity with its properties and behaviors
+- `user.go`: Defines the User entity with authentication-related behaviors
+
+These domain models are pure Go structs with no dependencies on external frameworks or libraries.
+
+#### Ports Layer (`internal/core/ports`)
+
+The ports layer defines interfaces that the domain uses to interact with the outside world:
+
+- `repositories.go`: Defines interfaces for data persistence operations
+  
+  ```go
+  type TodoRepository interface {
+      Create(todo *domain.Todo) (*domain.Todo, error)
+      GetByID(id string) (*domain.Todo, error)
+      GetAllByUserID(userID string) ([]*domain.Todo, error)
+      Update(todo *domain.Todo) (*domain.Todo, error)
+      Delete(id string) error
+  }
+  
+  type UserRepository interface {
+      Create(user *domain.User) (*domain.User, error)
+      GetByID(id string) (*domain.User, error)
+      GetByEmail(email string) (*domain.User, error)
+      GetByOAuthID(provider, oauthID string) (*domain.User, error)
+      Update(user *domain.User) (*domain.User, error)
+  }
+  
+  type ImageRepository interface {
+      Save(data []byte, contentType string) (string, error)
+      Get(id string) ([]byte, string, error)
+      Delete(id string) error
+  }
+  ```
+  
+#### Service Layer (`internal/core/services`)
+The service layer implements the application's use cases by orchestrating the domain entities and interacting with ports:
+
+- `todo_service.go`: Implements the TodoService interface
+- `user_service.go`: Implements the UserService interface
+- `services.go`: Defines interfaces for application services
+
+These services contain the application's business logic but remain agnostic to how data is stored or how the UI is implemented.
+
+  ```go
+  type TodoService interface {
+      CreateTodo(userID, title, description string, imageData []byte, imageType string) (*domain.Todo, error)
+      GetTodoByID(id string) (*domain.Todo, error)
+      GetAllTodosByUserID(userID string) ([]*domain.Todo, error)
+      UpdateTodo(id, title, description, status string, imageData []byte, imageType string) (*domain.Todo, error)
+      DeleteTodo(id string) error
+  }
+  
+  type UserService interface {
+      Signup(username, email, password string) (*domain.User, string, error)
+      Login(email, password string) (*domain.User, string, error)
+      GetUserByID(id string) (*domain.User, error)
+  }
+  ```
+  
+
+### Adapters Layer (`internal/adapters`)
+The adapters layer contains implementations of the ports that connect to specific technologies:
+
+- Repository Adapters (`internal/adapters/repositories/postgres`):
+    - `todo_repository.go`: PostgreSQL implementation of TodoRepository
+    - `user_repository.go`: PostgreSQL implementation of UserRepository
+    - `image_repository.go`: PostgreSQL implementation of ImageRepository
+- HTTP Adapters (`internal/adapters/handlers/http`):
+    - `todo_handler.go`: HTTP handlers for todo operations
+    - `auth_handler.go`: HTTP handlers for authentication
+    - `image_handler.go`: HTTP handlers for image operations
 
 ## 📝 API Documentation
 
