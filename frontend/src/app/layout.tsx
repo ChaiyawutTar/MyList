@@ -18,12 +18,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <AuthProvider>
-          <div className="min-h-screen bg-gray-100">
+          <div className="min-h-screen flex flex-col">
             <Header />
-            <main className="py-10">
+            <main className="flex-1 py-8">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {children}
               </div>

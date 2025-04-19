@@ -11,6 +11,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (username: string, email: string, password: string) => Promise<void>;
+  oauthLogin: (provider: string) => void;
   logout: () => void;
   loading: boolean;
 }
@@ -19,6 +20,7 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   login: async () => {},
   signup: async () => {},
+  oauthLogin: () => {},
   logout: () => {},
   loading: true,
 });
@@ -64,9 +66,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     router.push('/login');
   };
 
+  const oauthLogin = (provider: string) => {
+    authUseCases.oauthLogin(provider);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
-      {children}
+    <AuthContext.Provider value={{ user, login, signup, oauthLogin, logout, loading }}>
+        {children}
     </AuthContext.Provider>
   );
 };

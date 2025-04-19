@@ -11,6 +11,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	_ "github.com/lib/pq"
+	"github.com/gorilla/sessions"
+    "github.com/markbates/goth/gothic"
 
 	httphandlers "github.com/ChaiyawutTar/MyList/internal/adapters/handlers/http"
 	custommiddleware "github.com/ChaiyawutTar/MyList/internal/adapters/handlers/middleware"
@@ -20,6 +22,8 @@ import (
 	"github.com/ChaiyawutTar/MyList/internal/config"
 	"github.com/ChaiyawutTar/MyList/internal/core/services"
 	"github.com/ChaiyawutTar/MyList/pkg/auth"
+	
+
 )
 
 func main() {
@@ -56,8 +60,24 @@ func main() {
 	todoService := services.NewTodoService(todoRepo, imageRepo)
 
 	// Initialize handlers
-	authHandler := httphandlers.NewAuthHandler(userService)
+
 	todoHandler := httphandlers.NewTodoHandler(todoService)
+	oauthManager := auth.NewOAuthManager(
+		userRepo,
+		jwtAuth,
+		cfg.GoogleClientID,
+		cfg.GoogleClientSecret,
+		cfg.OAuthCallbackURL,
+	)
+	authHandler := httphandlers.NewAuthHandler(userService, oauthManager, cfg.FrontendURL)
+
+	sessionStore := sessions.NewCookieStore([]byte(cfg.SessionSecret))
+    sessionStore.MaxAge(86400 * 30) // 30 days
+    sessionStore.Options.Path = "/"
+    sessionStore.Options.HttpOnly = true
+    sessionStore.Options.Secure = false // Set to true in production with HTTPS
+    
+    gothic.Store = sessionStore
 
 	// Initialize router
 	r := chi.NewRouter()
@@ -78,6 +98,9 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Post("/signup", authHandler.Signup)
 		r.Post("/login", authHandler.Login)
+
+		r.Get("/auth/{provider}", authHandler.BeginOAuth)
+    	r.Get("/auth/{provider}/callback", authHandler.OAuthCallback)
 	})
 
 	// Serve static files

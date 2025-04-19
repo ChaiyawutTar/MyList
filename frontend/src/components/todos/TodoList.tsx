@@ -2,15 +2,17 @@
 'use client';
 
 import { useEffect } from 'react';
-import TodoItem from './TodoItem';
+// import { useRouter } from 'next/navigation';
 import { useTodos } from '../../hooks/use-todos';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PlusCircle, Loader2 } from "lucide-react";
 import Link from 'next/link';
-
-// In your useTodos hook, make sure todos is initialized as an empty array
-// Then in TodoList.tsx, add a null check:
+import TodoItem from './TodoItem';
 
 export default function TodoList() {
   const { todos, loading, error, fetchTodos, deleteTodo } = useTodos();
+  // const router = useRouter();
 
   useEffect(() => {
     fetchTodos();
@@ -19,39 +21,54 @@ export default function TodoList() {
   if (loading && (!todos || todos.length === 0)) {
     return (
       <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-        {error}
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">My Todos</h1>
-        <Link
-          href="/todos/new"
-          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-        >
-          Add New Todo
-        </Link>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold tracking-tight">My Todos</h1>
+        <Button asChild>
+          <Link href="/todos/new">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Todo
+          </Link>
+        </Button>
       </div>
 
+      {error && (
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <p className="text-destructive">{error}</p>
+          </CardContent>
+        </Card>
+      )}
+
       {!todos || todos.length === 0 ? (
-        <div className="bg-white shadow rounded-lg p-6 text-center">
-          <p className="text-gray-500">No todos yet. Add your first todo!</p>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>No todos yet</CardTitle>
+            <CardDescription>
+              Get started by adding your first todo item
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center pb-6">
+            <Button asChild>
+              <Link href="/todos/new">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create Todo
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
-        todos.map((todo) => (
-          <TodoItem key={todo.id} todo={todo} onDelete={deleteTodo} />
-        ))
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {todos.map((todo) => (
+            <TodoItem key={todo.id} todo={todo} onDelete={deleteTodo} />
+          ))}
+        </div>
       )}
     </div>
   );

@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/use-auth';
 import TodoList from '@/components/todos/TodoList';
+import { Loading } from '@/components/ui/loading';
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -17,11 +18,7 @@ export default function Home() {
   }, [user, loading, router]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">Loading...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!user) {

@@ -1,6 +1,15 @@
+// src/components/todos/TodoForm.tsx
 'use client';
 
 import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
+// Remove the Image import if using regular img tag
 
 export default function TodoForm({ initialData, onSubmit, isEditing = false }) {
   const [title, setTitle] = useState(initialData?.title || '');
@@ -36,80 +45,90 @@ export default function TodoForm({ initialData, onSubmit, isEditing = false }) {
   };
 
   return (
-    <div className="bg-white shadow rounded-lg p-6 mb-6">
-      <h2 className="text-lg font-medium text-gray-900 mb-4">
-        {isEditing ? 'Edit Todo' : 'Add New Todo'}
-      </h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>{isEditing ? 'Edit Todo' : 'Add New Todo'}</CardTitle>
+        <CardDescription>
+          {isEditing 
+            ? 'Update your todo item details' 
+            : 'Fill in the details to create a new todo item'}
+        </CardDescription>
+      </CardHeader>
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="title" className="block text-gray-700 text-sm font-bold mb-2">Title</label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Enter todo title"
-            required
-            aria-required="true"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">Description</label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Enter todo description"
-            rows={3}
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="status" className="block text-gray-700 text-sm font-bold mb-2">Status</label>
-          <select
-            id="status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            aria-label="Todo status"
-          >
-            <option value="pending">Pending</option>
-            <option value="in_progress">In Progress</option>
-            <option value="done">Done</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="image" className="block text-gray-700 text-sm font-bold mb-2">Image (Optional)</label>
-          <input
-            id="image"
-            type="file"
-            onChange={(e) => setImage(e.target.files?.[0] || null)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            accept="image/*"
-            aria-label="Upload todo image"
-          />
-          {initialData?.image_path && (
-            <div className="mt-2">
-              <p className="text-sm text-gray-500">Current image:</p>
-              <img
-                src={`http://localhost:8080/${initialData.image_path}`}
-                alt={`Image for ${initialData.title}`}
-                className="mt-2 h-20 w-auto object-cover rounded"
-              />
-            </div>
-          )}
-        </div>
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-            disabled={isLoading}
-          >
-            {isLoading ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save' : 'Add Todo')}
-          </button>
-        </div>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter todo title"
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter todo description"
+              rows={3}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select 
+              value={status} 
+              onValueChange={setStatus}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="done">Done</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="image">Image (Optional)</Label>
+            <Input
+              id="image"
+              type="file"
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+              accept="image/*"
+            />
+            {initialData?.image_path && (
+              <div className="mt-2">
+                <p className="text-sm text-muted-foreground">Current image:</p>
+                {/* Using regular img tag instead of Next.js Image */}
+                <img
+                  src={`http://localhost:8080/${initialData.image_path}`}
+                  alt={`Image for ${initialData.title}`}
+                  className="mt-2 h-20 w-auto object-cover rounded"
+                />
+              </div>
+            )}
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isEditing ? 'Saving...' : 'Adding...'}
+              </>
+            ) : (
+              isEditing ? 'Save Changes' : 'Add Todo'
+            )}
+          </Button>
+        </CardFooter>
       </form>
-    </div>
+    </Card>
   );
 }

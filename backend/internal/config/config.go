@@ -14,6 +14,11 @@ type Config struct {
 	UploadDir        string
 	AllowedOrigins   []string
 	AllowCredentials bool
+	GoogleClientID   string
+    GoogleClientSecret string
+    OAuthCallbackURL string
+	FrontendURL string
+	SessionSecret string
 }
 
 func LoadConfig() *Config {
@@ -28,6 +33,13 @@ func LoadConfig() *Config {
 	viper.SetDefault("PORT", "8080")
 	viper.SetDefault("UPLOAD_DIR", "./uploads")
 	viper.SetDefault("FRONTEND_URL", "http://localhost:3000")
+	viper.SetDefault("GOOGLE_CLIENT_ID", "")
+    viper.SetDefault("GOOGLE_CLIENT_SECRET", "")
+    viper.SetDefault("OAUTH_CALLBACK_URL", "http://localhost:8080/auth/google/callback")
+	viper.SetDefault("SESSION_SECRET","")
+
+
+
 
 	return &Config{
 		DatabaseURL:      viper.GetString("DATABASE_URL"),
@@ -37,5 +49,10 @@ func LoadConfig() *Config {
 		UploadDir:        viper.GetString("UPLOAD_DIR"),
 		AllowedOrigins:   []string{viper.GetString("FRONTEND_URL")},
 		AllowCredentials: true,
+		GoogleClientID:     viper.GetString("GOOGLE_CLIENT_ID"),
+        GoogleClientSecret: viper.GetString("GOOGLE_CLIENT_SECRET"),
+        OAuthCallbackURL:   viper.GetString("OAUTH_CALLBACK_URL"),
+		FrontendURL: viper.GetString("FRONTEND_URL"),
+		SessionSecret: viper.GetString("SESSION_SECRET"),
 	}
 }

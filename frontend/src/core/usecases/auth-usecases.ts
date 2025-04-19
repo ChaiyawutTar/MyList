@@ -28,4 +28,8 @@ export class AuthUseCases {
   logout(): void {
     this.authRepository.removeToken();
   }
+
+  oauthLogin(provider: string): void {
+    this.authRepository.oauthLogin(provider);
+  }
 }

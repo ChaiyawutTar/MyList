@@ -3,43 +3,71 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
+import { Button } from "@/components/ui/button";
+import { LogOut, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 export default function Header() {
   const { user, logout } = useAuth();
 
+  // Get user initials for avatar fallback
+  const getInitials = () => {
+    if (!user || !user.username) return 'U';
+    return user.username.charAt(0).toUpperCase();
+  };
+
+  // Get avatar image URL (if available from OAuth)
+  const getAvatarUrl = () => {
+    if (user?.picture) return user.picture;
+    return '';
+  };
+
   return (
-    <header className="bg-white shadow-sm">
+    <header className="border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-indigo-600">
-                My List
-              </Link>
-            </div>
-          </div>
+        <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
+            <Link href="/" className="text-xl font-bold text-primary">
+              My List
+            </Link>
+          </div>
+          <div className="flex items-center gap-4">
             {user ? (
-              <button
-                onClick={logout}
-                className="ml-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-              >
-                Logout
-              </button>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium hidden sm:block">
+                  {user.username || user.email}
+                </span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Avatar className="h-8 w-8 cursor-pointer">
+                      <AvatarImage src={getAvatarUrl()} alt={user.username || "User"} />
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={logout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/signup"
-                  className="ml-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                >
-                  Sign up
-                </Link>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link href="/signup">Sign up</Link>
+                </Button>
               </>
             )}
           </div>

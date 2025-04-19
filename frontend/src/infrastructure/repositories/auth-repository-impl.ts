@@ -13,6 +13,12 @@ export class AuthRepositoryImpl implements AuthRepository {
     return apiClient.post<AuthResponse>('/signup', request);
   }
 
+  oauthLogin(provider: string): void {
+    if (typeof window !== 'undefined') {
+        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/${provider}`;
+    }
+}
+
   getCurrentUser(): User | null {
     const token = this.getToken();
     if (!token) return null;

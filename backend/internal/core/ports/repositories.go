@@ -9,9 +9,11 @@ import (
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, user *domain.User, password string) error
-	FindByEmail(ctx context.Context, email string) (*domain.User, error)
-	FindByID(ctx context.Context, id int) (*domain.User, error)
+    Create(ctx context.Context, user *domain.User, password string) error
+    FindByEmail(ctx context.Context, email string) (*domain.User, error)
+    FindByID(ctx context.Context, id int) (*domain.User, error)
+    FindByOAuthID(ctx context.Context, provider, providerID string) (*domain.User, error)
+    UpdateOAuthInfo(ctx context.Context, user *domain.User) error
 }
 
 type TodoRepository interface {
