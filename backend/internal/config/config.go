@@ -2,6 +2,7 @@ package config
 
 import (
 	"time"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -36,7 +37,18 @@ func LoadConfig() *Config {
 	viper.SetDefault("SESSION_SECRET","")
 
 
+	originsStr := viper.GetString("ALLOWED_ORIGINS")
+    origins := []string{}
+    if originsStr != "" {
+        // Split by comma and trim spaces
+        for _, origin := range strings.Split(originsStr, ",") {
+            origins = append(origins, strings.TrimSpace(origin))
+        }
+    }
 
+	if len(origins) == 0 {
+        origins = []string{viper.GetString("FRONTEND_URL")}
+    }
 
 	return &Config{
 		DatabaseURL:      viper.GetString("DATABASE_URL"),

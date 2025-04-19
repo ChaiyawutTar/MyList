@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -122,13 +123,20 @@ func main() {
 		r.Put("/todos/{id}", todoHandler.UpdateTodo)
 		r.Delete("/todos/{id}", todoHandler.DeleteTodo)
 	})
+
+
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok","cors":"configured","origins":"`+strings.Join(cfg.AllowedOrigins, ",")+`"}`))
+	})
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = cfg.ServerPort // Use config port as fallback
 	}
-
-	// Start server
-	serverAddr := fmt.Sprintf(":%s", cfg.ServerPort)
+	
+	serverAddr := fmt.Sprintf(":%s", port)
 	fmt.Printf("Server started on %s\n", serverAddr)
 	log.Fatal(http.ListenAndServe(serverAddr, r))
 }
