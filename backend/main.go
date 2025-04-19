@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	// "os"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -122,6 +122,10 @@ func main() {
 		r.Put("/todos/{id}", todoHandler.UpdateTodo)
 		r.Delete("/todos/{id}", todoHandler.DeleteTodo)
 	})
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = cfg.ServerPort // Use config port as fallback
+	}
 
 	// Start server
 	serverAddr := fmt.Sprintf(":%s", cfg.ServerPort)

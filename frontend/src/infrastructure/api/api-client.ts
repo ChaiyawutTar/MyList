@@ -5,6 +5,10 @@ export class ApiClient {
   private client: AxiosInstance;
 
   constructor(baseURL: string) {
+    if (!baseURL) {
+      throw new Error('API base URL is not defined. Please check your environment variables.');
+    }
+
     this.client = axios.create({
       baseURL,
     });
@@ -35,6 +39,7 @@ export class ApiClient {
     const response = await this.client.put<T>(url, data, config);
     return response.data;
   }
+
   async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await this.client.delete<T>(url, config);
     return response.data;
@@ -59,4 +64,4 @@ export class ApiClient {
   }
 }
 
-export const apiClient = new ApiClient(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
+export const apiClient = new ApiClient(process.env.NEXT_PUBLIC_API_URL!);
