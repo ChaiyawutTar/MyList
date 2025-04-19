@@ -16,7 +16,6 @@ MyList is a modern task management application built with Go (backend) and Next.
 
 - **Modern UI**
   - Responsive design using Shadcn UI components
-  - Dark/light mode support
   - Optimized image loading
 
 ## 🏗️ Architecture
@@ -56,7 +55,7 @@ The frontend is built with Next.js and uses a clean architecture approach with:
 - **Web Framework**: Chi router
 - **Database**: PostgreSQL (hosted on Neon)
 - **Authentication**: JWT + Google OAuth
-- **Image Storage**: Database-based storage
+- **Image Storage**: PostgreSQL (hosted on Neon)
 
 ### Frontend
 - **Framework**: Next.js
@@ -85,6 +84,7 @@ The frontend is deployed on [Vercel](https://vercel.com) at:
 ```
 https://mylist-delta.vercel.app
 ```
+but Now It is not work 
 
 ## 🏁 Getting Started
 
@@ -100,6 +100,7 @@ https://mylist-delta.vercel.app
 2. Set up environment variables (see `.env.example`)
 3. Run the application:
 ```bash
+cd backend
 go run main.go
 ```
 
@@ -107,6 +108,7 @@ go run main.go
 1. Navigate to the frontend directory
 2. Install dependencies:
 ```bash
+cd frontend
 npm install
 ```
 3. Start the development server:
@@ -177,26 +179,3 @@ Todos are managed through a RESTful API with endpoints for:
 - CORS is configured to allow only specific origins
 - Input validation is performed on all endpoints
 
-## 🧪 Testing
-
-The application includes unit tests for core business logic and integration tests for API endpoints.
-
-To run tests:
-
-```bash
-go test ./...
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-## Contact
-
-For any questions or feedback, please reach out to [your-email@example.com](mailto:your-email@example.com).
