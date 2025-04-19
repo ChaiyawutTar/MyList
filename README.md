@@ -70,6 +70,45 @@ The application uses a PostgreSQL database with the following main tables:
 - **users**: Stores user information and authentication details
 - **todos**: Stores todo items with references to users
 - **images**: Stores image data for todo attachments
+```sql
+CREATE TABLE users (
+
+    id SERIAL PRIMARY KEY,
+
+    username VARCHAR(50) UNIQUE NOT NULL,
+
+    email VARCHAR(100) UNIQUE NOT NULL,
+
+    password_hash VARCHAR(255) NOT NULL,
+
+oauth_provider VARCHAR(50),
+
+oauth_provider_id VARCHAR(255),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
+
+CREATE TABLE todos (
+
+    id SERIAL PRIMARY KEY,
+
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+
+    title VARCHAR(100) NOT NULL,
+
+    description TEXT,
+
+    status VARCHAR(20) DEFAULT 'pending',
+
+    image_id VARCHAR(255),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
+```
 
 ## 🚀 Deployment
 
