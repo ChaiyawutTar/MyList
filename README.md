@@ -239,6 +239,8 @@ The adapters layer contains implementations of the ports that connect to specifi
     - `todo_handler.go`: HTTP handlers for todo operations
     - `auth_handler.go`: HTTP handlers for authentication
     - `image_handler.go`: HTTP handlers for image operations
+## Infrastructure of Hexagonal Architecture
+![image](https://github.com/user-attachments/assets/992aa05f-467c-44df-87a1-0ab5d90fee67)
 
 ## 📝 API Documentation
 
