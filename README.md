@@ -301,8 +301,8 @@ The adapters layer contains implementations of the ports that connect to specifi
 
 - `POST /signup`: Register a new user
 - `POST /login`: Authenticate a user
-- `GET /auth/{provider}`: Initiate OAuth flow
-- `GET /auth/{provider}/callback`: Handle OAuth callback
+- `GET /auth/{provider}`: Initiate OAuth flow (now we available only `google` provider)
+- `GET /auth/{provider}/callback`: Handle OAuth callback (now we available only `google` provider)
 
 ### Todo Endpoints
 
