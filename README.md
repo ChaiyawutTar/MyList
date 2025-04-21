@@ -58,10 +58,9 @@ The frontend is built with Next.js and uses a clean architecture approach with:
 - **Image Storage: [PostgreSQL (hosted on Neon) store in byte file](https://www.neon.tech)**
 
 ### Frontend
-- **Framework**: Next.js
-- **UI Library**: Shadcn UI
-- **State Management**: React Context
-- **HTTP Client**: Axios
+- **Framework: [Next.js](https://nextjs.org/)**
+- **UI Library: [Shadcn UI](https://ui.shadcn.com/)**
+- **HTTP Client: [Axios](https://axios-http.com/)**
 
 ## 📊 Database Schema
 
@@ -108,6 +107,20 @@ CREATE TABLE todos (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 );
+
+/* for the image table*/
+
+  CREATE TABLE images (
+
+    id SERIAL PRIMARY KEY,
+
+    filename TEXT NOT NULL,
+
+    data BYTEA NOT NULL,
+
+    content_type TEXT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ```
 
 ## 🚀 Deployment
