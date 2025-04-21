@@ -121,6 +121,8 @@ CREATE TABLE todos (
     content_type TEXT,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
 ```
 
 ## 🚀 Deployment
