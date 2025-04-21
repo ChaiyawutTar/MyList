@@ -51,11 +51,11 @@ The frontend is built with Next.js and uses a clean architecture approach with:
 ## 🛠️ Technology Stack
 
 ### Backend
-- **Language**: Go
-- **Web Framework**: Chi router
-- **Database**: PostgreSQL (hosted on Neon)
+- **Language: [Go](https://go.dev/)**
+- **Web Framework: [Chi router](https://go-chi.io/#/)**
+- **Database: [PostgreSQL (hosted on Neon)](https://www.neon.tech)**
 - **Authentication**: JWT + Google OAuth
-- **Image Storage**: PostgreSQL (hosted on Neon)
+- **Image Storage: [PostgreSQL (hosted on Neon) store in byte file](https://www.neon.tech)**
 
 ### Frontend
 - **Framework**: Next.js
