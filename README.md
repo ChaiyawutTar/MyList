@@ -80,9 +80,9 @@ CREATE TABLE users (
 
     password_hash VARCHAR(255) NOT NULL,
 
-oauth_provider VARCHAR(50),
+    oauth_provider VARCHAR(50),
 
-oauth_provider_id VARCHAR(255),
+    oauth_provider_id VARCHAR(255),
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
