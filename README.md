@@ -108,7 +108,7 @@ CREATE TABLE todos (
 
 );
 
-/* for the image table*/
+/* for the image table */
 
   CREATE TABLE images (
 
