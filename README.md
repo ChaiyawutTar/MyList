@@ -123,7 +123,6 @@ The frontend is deployed on [Vercel](https://vercel.com) at:
 ```
 https://mylist-delta.vercel.app
 ```
-but Now It is not work 
 
 ## 🏁 Getting Started
 
